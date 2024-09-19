@@ -5,99 +5,135 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .message-container {
-            max-height: calc(100vh - 130px); /* Full screen minus input and button height */
-            overflow-y: auto;
+            max-height: calc(100vh - 70px);
         }
-        .message-input-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #202c33; /* Dark background similar to WhatsApp */
-            padding: 0.5rem;
-            border-top: 1px solid #38444d; /* Slightly lighter border */
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .message-timestamp {
+            position: absolute;
+            bottom: 0.2rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+            color: #9e9e9e;
+        }
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #128c7e; /* Border to make it stand out */
+            background-color: #bbb;
             display: flex;
             align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            overflow: hidden; /* Ensures rounded image */
         }
-        .message-input {
-            flex: 1;
-            background-color: #2a2f32;
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 0.75rem;
+        }
+        .user-info h2 {
             color: #e0e0e0;
-            border: none;
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            margin-right: 0.5rem;
         }
         .send-button {
             background-color: #128c7e; /* WhatsApp green */
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
+            border-radius: 50%;
+            padding: 0.5rem;
             cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .send-button:hover {
-            background-color: #075e54; /* Darker green on hover */
+            background-color: #075e54;
+        }
+        .send-button svg {
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
 <body class="bg-gray-900 flex flex-col h-screen">
 
-    <!-- Message Display Section -->
+    <div class="bg-gray-800 p-4 flex items-center border-b border-gray-700">
+        <div class="profile-pic">
+            <img class="w-full h-full object-cover" src="https://i.pinimg.com/736x/8d/81/72/8d8172cdd27abb16a6653b3847a42ee8.jpg" alt="Profile Picture">
+        </div>
+        <div class="user-info">
+            <h2>Zohaib Khalid</h2>
+        </div>
+    </div>
+
     <div id="messages" class="message-container p-4 bg-gray-800 text-white flex-1 overflow-y-auto"></div>
 
-    <!-- Input and Button Section -->
-    <div class="message-input-container">
-        <input class="message-input" type="text" name="message" id="message" placeholder="Type a message...">
+    <div class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 flex items-center p-2 space-x-2">
+        <input class="flex-1 bg-gray-700 text-white rounded-full px-4 py-2 outline-none" type="text" name="message" id="message" placeholder="Type a message...">
         <button id="MSGbtn" class="send-button">
-            Send
+            <i class="fa-solid fa-arrow-right"></i>
         </button>
     </div>
 
-    <!-- Include Socket.IO Script -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Initialize socket connection
         const socket = io();
 
         const messageInput = document.getElementById("message");
         const messageBtn = document.getElementById("MSGbtn");
         const messagesDiv = document.getElementById("messages");
 
-        // Event listener for button click
-        messageBtn.addEventListener("click", () => {
+        const sendMessage = () => {
             const message = messageInput.value;
             const timestamp = new Date().toLocaleTimeString();
             
             if (message.trim() !== "") {
-                socket.emit("message", { text: message, time: timestamp }); // Emit message with timestamp to server
-                messageInput.value = ""; // Clear the input field after sending
-                messageInput.focus(); // Keep focus on input field
+                socket.emit("message", { text: message, time: timestamp });
+                messageInput.value = "";
+                messageInput.focus();
+            }
+        };
+
+        messageBtn.addEventListener("click", sendMessage);
+
+        messageInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent default Enter key behavior
+                sendMessage();
             }
         });
 
-        // Listen for messages from the server
         socket.on("message", ({ text, time }) => {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('bg-gray-700', 'text-white', 'rounded-lg', 'p-3', 'relative', 'flex', 'items-start', 'space-x-2', 'mb-2', 'max-w-xs', 'mx-auto');
-            
+            messageDiv.classList.add('message-bubble', 'bg-gray-700', 'text-white', 'self-start', 'ml-auto');
+
             const messageText = document.createElement('p');
             messageText.classList.add('text-base');
             messageText.innerText = text;
-            
+
             const messageTimestamp = document.createElement('span');
-            messageTimestamp.classList.add('text-xs', 'text-gray-400', 'absolute', 'bottom-1', 'right-2');
+            messageTimestamp.classList.add('message-timestamp');
             messageTimestamp.innerText = time;
 
             messageDiv.appendChild(messageText);
             messageDiv.appendChild(messageTimestamp);
-            
+
             messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom of the messages
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     </script>
 </body>
