@@ -4,39 +4,101 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Chat Interface</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-
-        .container {
-            max-width: 500px;
-            margin: auto;
-            padding: 2rem;
+        .message-container {
+            max-height: calc(100vh - 130px); /* Full screen minus input and button height */
+            overflow-y: auto;
+        }
+        .message-input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #202c33; /* Dark background similar to WhatsApp */
+            padding: 0.5rem;
+            border-top: 1px solid #38444d; /* Slightly lighter border */
+            display: flex;
+            align-items: center;
+        }
+        .message-input {
+            flex: 1;
+            background-color: #2a2f32;
+            color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+        }
+        .send-button {
+            background-color: #128c7e; /* WhatsApp green */
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        .send-button:hover {
+            background-color: #075e54; /* Darker green on hover */
         }
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+<body class="bg-gray-900 flex flex-col h-screen">
 
-    <div class="container bg-white shadow-lg rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Welcome!</h1>
-        <p class="text-gray-600 mb-6 text-center">Click the button below to create a new user and receive your unique socket ID.</p>
-        <div class="text-center">
-            <button onclick="createUser()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">Click to Create</button>
-        </div>
-        <div id="socket-id" class="mt-6 text-center text-gray-800"></div>
+    <!-- Message Display Section -->
+    <div id="messages" class="message-container p-4 bg-gray-800 text-white flex-1 overflow-y-auto"></div>
+
+    <!-- Input and Button Section -->
+    <div class="message-input-container">
+        <input class="message-input" type="text" name="message" id="message" placeholder="Type a message...">
+        <button id="MSGbtn" class="send-button">
+            Send
+        </button>
     </div>
 
-    <!-- Socket.IO Script -->
+    <!-- Include Socket.IO Script -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Function to create a user and log the socket id
-        const createUser = () => {
-            const socket = io();
-            socket.on('connect', () => {
-                document.getElementById('socket-id').innerHTML = `<h2 class="text-lg font-semibold">Socket ID: <span class="font-mono">${socket.id}</span></h2>`;
-            });
-        }
+        // Initialize socket connection
+        const socket = io();
+
+        const messageInput = document.getElementById("message");
+        const messageBtn = document.getElementById("MSGbtn");
+        const messagesDiv = document.getElementById("messages");
+
+        // Event listener for button click
+        messageBtn.addEventListener("click", () => {
+            const message = messageInput.value;
+            const timestamp = new Date().toLocaleTimeString();
+            
+            if (message.trim() !== "") {
+                socket.emit("message", { text: message, time: timestamp }); // Emit message with timestamp to server
+                messageInput.value = ""; // Clear the input field after sending
+                messageInput.focus(); // Keep focus on input field
+            }
+        });
+
+        // Listen for messages from the server
+        socket.on("message", ({ text, time }) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('bg-gray-700', 'text-white', 'rounded-lg', 'p-3', 'relative', 'flex', 'items-start', 'space-x-2', 'mb-2', 'max-w-xs', 'mx-auto');
+            
+            const messageText = document.createElement('p');
+            messageText.classList.add('text-base');
+            messageText.innerText = text;
+            
+            const messageTimestamp = document.createElement('span');
+            messageTimestamp.classList.add('text-xs', 'text-gray-400', 'absolute', 'bottom-1', 'right-2');
+            messageTimestamp.innerText = time;
+
+            messageDiv.appendChild(messageText);
+            messageDiv.appendChild(messageTimestamp);
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom of the messages
+        });
     </script>
 </body>
 </html>

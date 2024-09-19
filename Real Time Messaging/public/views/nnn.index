@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+
+    <div class="container bg-white shadow-xl rounded-xl p-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4 text-center">Welcome</h1>
+        <p class="text-gray-600 mb-6 text-center">Click the button below to create a new user and send a message.</p>
+
+        <div class="text-center">
+            <button id="MSGbtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                Create New User
+            </button>
+            
+            <!-- Input field for message -->
+            <input class="mt-6 py-3 px-4 w-full border-2 rounded-lg text-gray-800 focus:outline-none focus:border-indigo-500 transition duration-300" 
+                   type="text" name="message" id="message" placeholder="Enter your message">
+        </div>
+
+        <!-- Section to display messages -->
+        <div id="messages" class="mt-8 text-gray-800 text-center"></div>
+    </div>
+
+    <!-- Include Socket.IO Script -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Initialize socket connection
+        const socket = io();
+
+        const messageInput = document.getElementById("message");
+        const messageBtn = document.getElementById("MSGbtn");
+        const messagesDiv = document.getElementById("messages");
+
+        // Event listener for button click
+        messageBtn.addEventListener("click", () => {
+            const message = messageInput.value;
+           
+                socket.emit("message", message); // Emit message to server
+                messageInput.value = ""; // Clear the input field after sending
+            
+        });
+
+        // Listen for messages from the server
+        socket.on("message", (message) => {
+            const p = document.createElement('p');
+            p.classList.add('mb-2', 'text-lg', 'font-medium', 'text-gray-800');
+            p.innerText = message;
+            messagesDiv.appendChild(p);
+        });
+    </script>
+</body>
+</html>
