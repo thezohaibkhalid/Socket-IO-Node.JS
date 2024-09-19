@@ -1,14 +1,10 @@
 # Real-Time Socket.IO ID Display
 
-This project demonstrates a simple application using **Socket.IO** and **EJS**. Upon clicking a button, the Socket.IO client connects to the server and displays the unique Socket ID on the page in real-time.
+This project demonstrates a simple application using **Socket.IO** and **EJS**. Upon clicking a button, the Socket.IO client connects to the server and shows a message it works like a realtime messaging if we open the app in two browser window and the message we'll send from one windows will be shown in the other
 
-## Features
 
-- Real-time connection with **Socket.IO**.
-- Displays unique **Socket.IO ID** upon clicking a button.
-- Built with **Node.js**, **Express**, **EJS**, and **Tailwind CSS**.
 
-## Demo
+
 
 ![Demo](./img.png)
 
@@ -28,13 +24,13 @@ This project demonstrates a simple application using **Socket.IO** and **EJS**. 
 1. Clone this repository to your local machine:
 
    ```bash
-   git clone https://github.com/thezohaibkhalid/Socket-io-id.git
+   git clone https://github.com/thezohaibkhalid/Socket-IO-Node.JS/tree/main/Real%20Time%20Messaging.git
    ```
 
 2. Navigate into the project directory:
 
    ```bash
-   cd Socket-io-id
+   cd Real Time Messaging
    ```
 
 3. Install the required dependencies:
@@ -46,7 +42,7 @@ This project demonstrates a simple application using **Socket.IO** and **EJS**. 
 4. Start the server:
 
    ```bash
-   npm start
+   node index.js
    ```
 
 5. Open your browser and visit:
@@ -55,10 +51,7 @@ This project demonstrates a simple application using **Socket.IO** and **EJS**. 
    http://localhost:9000
    ```
 
-## Usage
 
-- Click the "Click to Create" button on the page.
-- The page will display the unique Socket.IO ID that is generated in real-time after establishing a connection to the server.
 
 ## Technologies Used
 
@@ -74,10 +67,4 @@ Here is what the app looks like:
 
 ![Screenshot](./img.png)
 
-## Contributing
 
-Feel free to submit a pull request if you want to contribute to the project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
